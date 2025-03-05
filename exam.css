@@ -1,0 +1,755 @@
+/* Main Theme Colors Based on Logo */
+:root {
+  --primary-blue: #63a9e0;
+  --dark-blue: #1a3b8a;
+  --accent-yellow: #f9d423;
+  --white: #ffffff;
+  --error-red: #e74c3c;
+  --success-green: #2ecc71;
+  --warning-orange: #f39c12;
+}
+
+/* Base Styles and Animations */
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s ease;
+}
+
+body {
+  background: linear-gradient(
+    120deg,
+    var(--primary-blue),
+    var(--dark-blue),
+    #4a69bd
+  );
+  background-size: 200% 200%;
+  /* animation: gradient-flow 5.5s ease infinite; */
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+.container {
+  width: 90%;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slide-in 0.8s ease-out;
+}
+
+/* Header Styles */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.header img {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 1rem;
+  animation: float 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+  border-radius: 50%;
+  border: 3px solid var(--white);
+  transition: transform 0.5s;
+}
+
+.header img:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: var(--white);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.header h1::after {
+  content: "";
+  position: absolute;
+  width: 50%;
+  height: 3px;
+  bottom: -10px;
+  left: 25%;
+  background: var(--accent-yellow);
+  transform-origin: center;
+  transform: scaleX(0);
+  transition: transform 0.5s;
+}
+
+.header h1:hover::after {
+  transform: scaleX(2);
+}
+
+.header h3 {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  animation: pulse 1.5s infinite;
+}
+
+/* Form Styles */
+.selection-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--white);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--white);
+  font-size: 1rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+}
+
+.form-control:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.form-control option {
+  background-color: var(--dark-blue);
+  color: var(--white);
+  padding: 2rem;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(26, 59, 138, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(26, 59, 138, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(45deg);
+  z-index: 1;
+  transition: all 0.6s;
+  opacity: 0;
+}
+
+.btn:hover::before {
+  animation: shimmer 1.5s infinite;
+  opacity: 1;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-link {
+  color: var(--accent-yellow);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  position: relative;
+}
+
+.btn-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: var(--accent-yellow);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.btn-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Questions Page Styles */
+#exam-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  animation: slide-in 0.5s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.Warn {
+  color: var(--warning-orange);
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-left: 4px solid var(--warning-orange);
+  /* animation: pulse 2s infinite; */
+}
+
+.progress-bar {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    var(--accent-yellow),
+    var(--warning-orange),
+    var(--error-red)
+  );
+  width: 0;
+  border-radius: 5px;
+  transition: width 1s linear;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 27s infinite;
+}
+
+.question-container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+  animation: slide-in 2.5s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.question-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.unanswered {
+  border: 2px solid var(--error-red);
+  animation: pulse 4s infinite;
+}
+
+.question-text {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.question-image-container {
+  width: 100%;
+  margin: 1rem 0;
+  text-align: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.question-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.question-image:hover {
+  transform: scale(1.03);
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.option-label {
+  display: block;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.option-label:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.option-label input {
+  margin-right: 10px;
+}
+
+/* Custom radio buttons */
+input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  outline: none;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: all 0.2s;
+}
+
+input[type="radio"]:checked {
+  border-color: var(--accent-yellow);
+  background-color: transparent;
+}
+
+input[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--accent-yellow);
+  animation: pulse 0.5s ease-out;
+}
+
+.student-info {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  animation: slide-in 0.5s ease;
+}
+
+.Input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+  font-size: 1rem;
+  text-transform: capitalize;
+  transition: all 0.3s;
+}
+
+.Input:focus {
+  outline: none;
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(249, 212, 35, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Timer Styles */
+.timer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--white);
+  padding: 10px 15px;
+  border-radius: 50px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  animation: float 1s ease-in-out infinite;
+}
+
+.timer-icon {
+  font-size: 1.2rem;
+  display: inline-block;
+  /* animation: rotate 2s linear infinite; */
+}
+
+#time-remaining {
+  font-size: 1.2rem;
+  font-weight: 600;
+  animation: blink 1s ease infinite;
+}
+
+/* Submit Button Styles */
+.submit-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-top: 2rem;
+  background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(26, 59, 138, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(26, 59, 138, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(1px);
+}
+
+.submit-btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(45deg);
+  z-index: 1;
+  transition: all 0.6s;
+  opacity: 0;
+}
+
+.submit-btn:hover::before {
+  animation: shimmer 1.5s infinite;
+  opacity: 1;
+}
+
+/* Loading Animation */
+.loading,
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--accent-yellow);
+  display: inline-block;
+  animation: rotate 1s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.loading {
+  margin: 2rem auto;
+  display: block;
+  width: 50px;
+  height: 50px;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--white);
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  z-index: 1000;
+  animation: slide-in 0.3s, float 4s ease-in-out infinite;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.toast-warning {
+  border-left: 4px solid var(--warning-orange);
+  animation: slide-in 0.3s, pulse 1s infinite;
+}
+
+/* Results Page */
+.results-container {
+  text-align: center;
+  padding: 2rem;
+  animation: slide-in 0.8s ease;
+}
+
+.results-summary {
+  margin: 2rem 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Error Messages */
+.error {
+  color: var(--error-red);
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  background: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid var(--error-red);
+  animation: pulse 2s infinite;
+}
+
+.image-error {
+  padding: 20px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  color: var(--error-red);
+}
+
+/* Back Button */
+.back-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .timer {
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+  }
+
+  #time-remaining {
+    font-size: 1rem;
+  }
+}
+
+/* Advanced Animation Effects */
+/* Parallax Background Effect */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(99, 169, 224, 0.1) 0%,
+    rgba(26, 59, 138, 0.2) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+  animation: pulse 20s ease infinite;
+}
+
+/* Particle Effect */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    ),
+    radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  pointer-events: none;
+  z-index: -1;
+  animation: float 10s ease infinite;
+}
+
+/* Glow Effect on Hover */
+.question-container:hover::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(
+    45deg,
+    var(--accent-yellow),
+    var(--primary-blue),
+    var(--dark-blue)
+  );
+  border-radius: 15px;
+  z-index: -1;
+  filter: blur(15px);
+  opacity: 0.5;
+  animation: pulse 2s infinite;
+}
+.name-inputs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.input-group label {
+  margin-bottom: 5px;
+}
+.input-group input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
