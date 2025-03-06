@@ -65,12 +65,18 @@ function displayQuestions(data, subject, cls) {
     questionsDiv.innerHTML = "<p>No questions found.</p>";
     return;
   }
+
   // Separate header row and question rows
   const headerRow = data[0];
   const questionRows = data.slice(1);
 
-  // Shuffle only the question rows, keeping the header row intact
-  const shuffledQuestionRows = shuffleArray(questionRows);
+  // Keep first 7 questions fixed, shuffle only the remaining questions
+  const fixedQuestions = questionRows.slice(0, 7);
+  const questionsToShuffle = questionRows.slice(7);
+  const shuffledRemainingQuestions = shuffleArray(questionsToShuffle);
+
+  // Combine fixed questions with shuffled remaining questions
+  const finalQuestionRows = [...fixedQuestions, ...shuffledRemainingQuestions];
 
   // Add exam metadata section
   questionsDiv.innerHTML = `
@@ -94,8 +100,8 @@ function displayQuestions(data, subject, cls) {
   `;
 
   // Create questions
-  for (let i = 0; i < shuffledQuestionRows.length; i++) {
-    let row = shuffledQuestionRows[i];
+  for (let i = 0; i < finalQuestionRows.length; i++) {
+    let row = finalQuestionRows[i];
     let questionText = row[0];
     let options = {
       A: row[1],
@@ -172,7 +178,6 @@ function displayQuestions(data, subject, cls) {
   // Setup image error handling
   setupImageErrorHandling();
 }
-
 // Helper function to shuffle options while preserving the correct answer's mapping
 function shuffleOptionsPreservingCorrectAnswer(options, correctAnswer) {
   const optionsArray = Object.entries(options);
