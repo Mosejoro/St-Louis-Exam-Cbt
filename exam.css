@@ -477,7 +477,6 @@ input[type="radio"]:checked::before {
   background: rgba(255, 255, 255, 0.08);
   color: var(--white);
   font-size: 1rem;
-  text-transform: capitalize;
   transition: all 0.3s;
 }
 
