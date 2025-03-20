@@ -88,11 +88,11 @@ function displayQuestions(data, subject, cls) {
         <div class="name-inputs">
           <div class="input-group">
             <label for="surname">Surname:</label>
-            <input class="Input" type="text" id="surname" placeholder="e.g. Success" required>
+            <input class="Input" type="text"oninput="this.value = this.value.toUpperCase()" id="surname" placeholder="e.g. Success" required>
           </div>
           <div class="input-group">
             <label for="firstname">First Name:</label>
-            <input class="Input" type="text" id="firstname" placeholder="e.g. Ada" required>
+            <input class="Input" type="text" id="firstname" oninput="this.value = this.value.toUpperCase()" placeholder="e.g. Ada" required>
           </div>
         </div>
       </div>
