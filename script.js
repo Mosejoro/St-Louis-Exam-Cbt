@@ -71,8 +71,8 @@ function displayQuestions(data, subject, cls) {
   const questionRows = data.slice(1);
 
   // Keep first 7 questions fixed, shuffle only the remaining questions
-  const fixedQuestions = questionRows.slice(0, 7);
-  const questionsToShuffle = questionRows.slice(7);
+  const fixedQuestions = questionRows.slice(0, 50);
+  const questionsToShuffle = questionRows.slice(50);
   const shuffledRemainingQuestions = shuffleArray(questionsToShuffle);
 
   // Combine fixed questions with shuffled remaining questions
