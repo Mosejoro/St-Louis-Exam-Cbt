@@ -835,3 +835,30 @@ button:hover {
   word-break: break-all;
   margin-top: 5px;
 }
+/* BINA */
+.powered-by-bina-floating {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 999;
+  color: var(--white);
+  font-weight: 500;
+  font-size: 0.95rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.powered-by-bina-floating img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  animation: float 2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+}
