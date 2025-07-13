@@ -1,503 +1,433 @@
-// API Configuration for Malpractice Examination System
-const apiKey = "AIzaSyAq-OpHyYcqlK5rtNJ8MBtPP4LcCVotzcU"
-const sheetId = "1CSNKDZZdz4ZKL28o2jPUcbGJ8xM85Jifpan_mxaZVKQ"
+// API Configuration
+const apiKey = "AIzaSyAq-OpHyYcqlK5rtNJ8MBtPP4LcCVotzcU";
+const sheetId = "1CSNKDZZdz4ZKL28o2jPUcbGJ8xM85Jifpan_mxaZVKQ";
 const sheetURL =
-  "https://script.google.com/macros/s/AKfycbx3-EjFsnOgcQBFwSt-xN9C2dNo9HcW_X93uIcZOPYupLlyXbGlc29mYK-QhHw-IfJHOQ/exec"
+  "https://script.google.com/macros/s/AKfycbx3-EjFsnOgcQBFwSt-xN9C2dNo9HcW_X93uIcZOPYupLlyXbGlc29mYK-QhHw-IfJHOQ/exec";
 
 // Helper Functions
 function getSheetName(subject, classLevel) {
-  return `Malpractice_${subject.replace(/\s+/g, "")}_${classLevel}`
+  return `Mal_${subject.replace(/\s+/g, "")}_${classLevel}`;
 }
 
-// Enhanced notification system
-function showNotification(message, type = "info", duration = 4000) {
-  const notification = document.createElement("div")
-  notification.className = `notification ${type}`
+// Fetch and Display Questions
+async function fetchQuestions(day, cls, subject) {
+  if (!subject) {
+    alert("Please select a subject.");
+    return;
+  }
 
-  const icon = type === "error" ? "❌" : type === "success" ? "✅" : type === "warning" ? "⚠️" : "ℹ️"
+  let sheetName = getSheetName(subject, cls);
+  let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
 
-  notification.innerHTML = `
-    <div class="notification-icon">${icon}</div>
-    <div class="notification-message">${message}</div>
-  `
+  try {
+    let response = await fetch(url);
+    let data = await response.json();
 
-  document.body.appendChild(notification)
+    if (!data.values) {
+      throw new Error(`No sheet found for ${sheetName}`);
+    }
 
-  // Trigger animation
-  requestAnimationFrame(() => {
-    notification.classList.add("show")
-  })
-
-  // Auto remove
-  setTimeout(() => {
-    notification.classList.remove("show")
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove()
-      }
-    }, 300)
-  }, duration)
+    displayQuestions(data.values, subject, cls);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    document.getElementById("questions").innerHTML = `
+      <p class="error">Error: Could not load questions for ${subject.replace(
+        /_/g,
+        " "
+      )} - ${cls}.</p>
+      <p>Please make sure the corresponding sheet exists in the spreadsheet.</p>
+      <button onclick="window.location.href='index.html'" class="back-btn">Go Back</button>
+    `;
+  }
 }
 
 // Store questions data globally
-let questionsData = []
-let examStartTime = null
+let questionsData = [];
 
-// Enhanced shuffle function with better randomization
+// Display questions in HTML
+// Updated displayQuestions function with image support
+// Updated displayQuestions function with Google Drive image support
+
 function shuffleArray(array) {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return shuffled
+  return array;
 }
 
-// Fetch and Display Questions with enhanced error handling
-async function fetchQuestions(day, cls, subject) {
-  if (!subject) {
-    showNotification("Please select a subject.", "error")
-    return
-  }
-
-  const sheetName = getSheetName(subject, cls)
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`
-
-  try {
-    showNotification("Loading your re-examination questions...", "info", 2000)
-
-    const response = await fetch(url)
-    const data = await response.json()
-
-    if (!data.values || data.values.length <= 1) {
-      throw new Error(`No questions found for ${sheetName}`)
-    }
-
-    examStartTime = new Date()
-    displayQuestions(data.values, subject, cls)
-    showNotification("Questions loaded successfully! Good luck!", "success", 3000)
-  } catch (error) {
-    console.error("Error fetching questions:", error)
-    document.getElementById("questions").innerHTML = `
-      <div class="error-container">
-        <div class="error-icon">📚</div>
-        <h3>Questions Not Available</h3>
-        <p class="error-message">
-          ${subject.replace(/_/g, " ")} re-examination for ${cls} is not yet available.
-        </p>
-        <p class="error-subtitle">
-          Please verify your selection or contact your teacher.
-        </p>
-        <button onclick="window.location.href='index.html'" class="back-btn">
-          ← Go Back to Selection
-        </button>
-      </div>
-    `
-  }
-}
-
-// Enhanced question display with better UI
 function displayQuestions(data, subject, cls) {
-  const questionsDiv = document.getElementById("questions")
-  questionsDiv.innerHTML = ""
-  questionsData = []
+  let questionsDiv = document.getElementById("questions");
+  questionsDiv.innerHTML = "";
+  questionsData = [];
 
   if (!data || data.length <= 1) {
-    questionsDiv.innerHTML = `
-      <div class="no-questions">
-        <div class="no-questions-icon">📝</div>
-        <h3>No Questions Available</h3>
-        <p>There are currently no questions for this subject and class.</p>
-      </div>
-    `
-    return
+    questionsDiv.innerHTML = "<p>No questions found.</p>";
+    return;
   }
 
-  // Process questions with enhanced shuffling
-  const headerRow = data[0]
-  const questionRows = data.slice(1)
+  // Separate header row and question rows
+  const headerRow = data[0];
+  const questionRows = data.slice(1);
 
-  // Enhanced shuffling: keep first 10 questions fixed for consistency
-  const fixedQuestions = questionRows.slice(0, 10)
-  const questionsToShuffle = questionRows.slice(10)
-  const shuffledRemainingQuestions = shuffleArray(questionsToShuffle)
-  const finalQuestionRows = [...fixedQuestions, ...shuffledRemainingQuestions]
+  // Keep first 7 questions fixed, shuffle only the remaining questions
+  const fixedQuestions = questionRows.slice(0, 50);
+  const questionsToShuffle = questionRows.slice(50);
+  const shuffledRemainingQuestions = shuffleArray(questionsToShuffle);
 
-  // Add student info section with enhanced styling
+  // Combine fixed questions with shuffled remaining questions
+  const finalQuestionRows = [...fixedQuestions, ...shuffledRemainingQuestions];
+
+  // Add exam metadata section
   questionsDiv.innerHTML = `
-    <div class="student-info">
-      <div class="student-info-header">
-        <h3>📝 Student Information</h3>
-        <p>Please enter your details before starting the re-examination</p>
-      </div>
-      <div class="name-inputs">
-        <div class="input-group">
-          <label for="surname">
-            <span class="input-icon">👤</span>
-            Surname:
-          </label>
-          <input 
-            class="Input" 
-            type="text" 
-            id="surname" 
-            placeholder="Enter your surname" 
-            oninput="this.value = this.value.toUpperCase()" 
-            required
-          >
-        </div>
-        <div class="input-group">
-          <label for="firstname">
-            <span class="input-icon">👤</span>
-            First Name:
-          </label>
-          <input 
-            class="Input" 
-            type="text" 
-            id="firstname" 
-            placeholder="Enter your first name" 
-            oninput="this.value = this.value.toUpperCase()" 
-            required
-          >
-        </div>
-      </div>
-      <div class="exam-instructions">
-        <div class="instruction-item">
-          <span class="instruction-icon">⏰</span>
-          <span>You have 45 minutes to complete this re-examination</span>
-        </div>
-        <div class="instruction-item">
-          <span class="instruction-icon">✅</span>
-          <span>Answer all questions before submitting</span>
-        </div>
-        <div class="instruction-item">
-          <span class="instruction-icon">🚫</span>
-          <span>No malpractice will be tolerated</span>
+       <div class="exam-header">
+      <h3>Subject: ${subject.replace(/_/g, " ")}</h3>
+      <h4>Class: Primary ${cls.substring(1)}</h4>
+      <h3 class="Warn">Do well to answer all the questions before the time runs out.</h3>
+      <div class="student-info">
+        <div class="name-inputs">
+          <div class="input-group">
+            <label for="surname">Surname:</label>
+            <input class="Input" type="text"oninput="this.value = this.value.toUpperCase()" id="surname" placeholder="e.g. Success" required>
+          </div>
+          <div class="input-group">
+            <label for="firstname">First Name:</label>
+            <input class="Input" type="text" id="firstname" oninput="this.value = this.value.toUpperCase()" placeholder="e.g. Ada" required>
+          </div>
         </div>
       </div>
     </div>
-  `
+  `;
 
-  // Create questions with enhanced options shuffling
-  finalQuestionRows.forEach((row, i) => {
-    const questionText = row[0]
-    const originalOptions = {
+  // Create questions
+  for (let i = 0; i < finalQuestionRows.length; i++) {
+    let row = finalQuestionRows[i];
+    let questionText = row[0];
+    let options = {
       A: row[1],
       B: row[2],
       C: row[3],
       D: row[4],
-    }
-    const correctAnswer = row[5]
+    };
+    let correctAnswer = row[5];
 
-    // Enhanced option shuffling while preserving correct answer mapping
-    const optionEntries = Object.entries(originalOptions)
-    const shuffledEntries = shuffleArray(optionEntries)
-    const shuffledOptions = Object.fromEntries(shuffledEntries)
+    // Shuffle the options while maintaining the correct mapping
+    const optionKeys = ["A", "B", "C", "D"];
+    const shuffledOptionKeys = shuffleArray([...optionKeys]);
 
-    // Find new position of correct answer
-    const originalIndex = Object.keys(originalOptions).indexOf(correctAnswer)
-    const newCorrectAnswerKey = Object.keys(shuffledOptions)[originalIndex]
+    // Create shuffled options object
+    const shuffledOptions = {};
+    shuffledOptionKeys.forEach((newKey, index) => {
+      shuffledOptions[newKey] = options[optionKeys[index]];
+    });
+
+    // Find the new key for the correct answer
+    const newCorrectAnswerKey =
+      shuffledOptionKeys[optionKeys.indexOf(correctAnswer)];
 
     questionsData.push({
       questionNumber: i + 1,
       correctAnswer: newCorrectAnswerKey,
       subject,
       cls,
-      originalAnswer: correctAnswer,
-    })
+    });
 
-    // Process question for images
-    const { processedText, imageHtmlContent } = processQuestionImages(questionText, i + 1)
+    // Check if the question contains an image URL
+    let processedQuestion = questionText;
+    let imageHTML = "";
 
-    const questionHTML = `
-      <div class="question-container" data-question="${i + 1}">
-        <div class="question-header">
-          <span class="question-number">Question ${i + 1}</span>
-          <span class="question-badge">Re-exam</span>
-        </div>
-        <div class="question-text">${processedText}</div>
-        ${imageHtmlContent}
+    // Process the question text to extract and handle image URLs
+    const { processedText, imageHtmlContent } = processQuestionImages(
+      questionText,
+      i
+    );
+    processedQuestion = processedText;
+    imageHTML = imageHtmlContent;
+
+    let questionHTML = `
+      <div class="question-container">
+        <p class="question-text"><strong>Question ${
+          i + 1
+        }:</strong> ${processedQuestion}</p>
+        ${imageHTML}
         <div class="options-container">
           ${Object.entries(shuffledOptions)
             .map(
               ([key, value]) => `
             <label class="option-label">
-              <input type="radio" name="q${i + 1}" value="${key}" required>
-              <span class="option-text">
-                <span class="option-letter">${key}</span>
-                ${value}
-              </span>
+              <input type="radio" name="q${i + 1}" value="${key}" required> 
+              ${value}
             </label>
-          `,
+          `
             )
             .join("")}
         </div>
-      </div>
-    `
+  `;
 
-    questionsDiv.innerHTML += questionHTML
-  })
+    questionsDiv.innerHTML += questionHTML;
+  }
 
-  // Add enhanced submit button
+  // Add submit button
   questionsDiv.innerHTML += `
-    <div class="submit-section">
-      <div class="submit-warning">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-content">
-          <strong>Important:</strong> Make sure you have answered all questions before submitting. 
-          You cannot change your answers after submission.
-        </div>
-      </div>
-      <button onclick="checkAnswers()" class="submit-btn">
-        <span class="submit-icon">📤</span>
-        Submit Re-examination
-        <div class="submit-loader" style="display: none;">
-          <div class="loading-spinner"></div>
-          Processing...
-        </div>
-      </button>
-    </div>
-  `
+    <button onclick="checkAnswers()" class="submit-btn">Submit Exam</button>
+  `;
 
-  // Setup enhanced interactions
-  addRadioChangeListeners()
-  setupImageErrorHandling()
-  setupQuestionTracking()
+  // Add this line to set up the listeners for removing the "unanswered" class
+  addRadioChangeListeners();
+
+  // Setup image error handling
+  setupImageErrorHandling();
+}
+// Helper function to shuffle options while preserving the correct answer's mapping
+function shuffleOptionsPreservingCorrectAnswer(options, correctAnswer) {
+  const optionsArray = Object.entries(options);
+  const shuffledArray = shuffleArray([...optionsArray]);
+  return Object.fromEntries(shuffledArray);
 }
 
-// Enhanced image processing with better error handling
+// Helper function to get the new letter corresponding to the correct answer after shuffling
+function getShuffledCorrectAnswer(shuffledOptions, originalCorrectAnswer) {
+  const originalOptions = ["A", "B", "C", "D"];
+  const shuffledKeys = Object.keys(shuffledOptions);
+  const originalIndex = originalOptions.indexOf(originalCorrectAnswer);
+  return shuffledKeys[originalIndex];
+}
+
+// Helper function to process question images - handles both regular and Google Drive images
 function processQuestionImages(questionText, questionNumber) {
-  let processedText = questionText
-  let imageHtmlContent = ""
+  let processedText = questionText;
+  let imageHtmlContent = "";
 
-  // Google Drive regex patterns
+  // Regular expression for standard image URLs
+  const standardImageRegex = /(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp))/gi;
+
+  // Regular expression for Google Drive links
+  // This matches patterns like:
+  // https://drive.google.com/file/d/FILEID/view
+  // https://drive.google.com/open?id=FILEID
   const googleDriveRegex =
-    /(https?:\/\/drive\.google\.com\/file\/d\/([^/\s]+)\/view[^\s]*|https?:\/\/drive\.google\.com\/open\?id=([^\s&]+))/gi
-  const standardImageRegex = /(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg))/gi
+    /(https?:\/\/drive\.google\.com\/file\/d\/([^\/\s]+)\/view[^\s]*|https?:\/\/drive\.google\.com\/open\?id=([^\s&]+))/gi;
 
-  // Process Google Drive links
-  const driveMatches = [...questionText.matchAll(googleDriveRegex)]
-  if (driveMatches.length > 0) {
-    driveMatches.forEach((match) => {
-      const fullUrl = match[0]
-      const fileId = match[2] || match[3]
+  // First check for Google Drive links
+  const driveMatches = [...questionText.matchAll(googleDriveRegex)];
+
+  if (driveMatches && driveMatches.length > 0) {
+    for (const match of driveMatches) {
+      const fullUrl = match[0];
+      // Extract fileId from the URL - either from /d/FILEID/view or ?id=FILEID
+      const fileId = match[2] || match[3];
 
       if (fileId) {
-        const directImageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`
-        processedText = processedText.replace(fullUrl, "")
+        // Create a direct link for the image
+        // This format allows direct image embedding from Google Drive
+        const directImageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
 
-        imageHtmlContent += `
-          <div class="question-image-container">
-            <img 
-              src="${directImageUrl}" 
-              alt="Question ${questionNumber} image" 
-              class="question-image" 
-              data-source="google-drive"
-              loading="lazy"
-            >
-            <div class="image-overlay">
-              <button class="image-expand" onclick="expandImage(this)">🔍</button>
-            </div>
-          </div>
-        `
+        // Replace the Google Drive URL in the question text
+        processedText = processedText.replace(fullUrl, "");
+
+        // Create image HTML
+        imageHtmlContent += `<div class="question-image-container">
+          <img src="${directImageUrl}" alt="Question ${questionNumber} image" class="question-image" data-source="google-drive">
+        </div>`;
       }
-    })
-  } else {
-    // Process standard image URLs
-    const standardMatches = [...questionText.matchAll(standardImageRegex)]
-    standardMatches.forEach((match) => {
-      const imageUrl = match[0]
-      processedText = processedText.replace(imageUrl, "")
+    }
+  }
+  // If no Google Drive links, check for standard image URLs
+  else {
+    const standardMatches = [...questionText.matchAll(standardImageRegex)];
 
-      imageHtmlContent += `
-        <div class="question-image-container">
-          <img 
-            src="${imageUrl}" 
-            alt="Question ${questionNumber} image" 
-            class="question-image"
-            loading="lazy"
-          >
-          <div class="image-overlay">
-            <button class="image-expand" onclick="expandImage(this)">🔍</button>
-          </div>
-        </div>
-      `
-    })
+    if (standardMatches && standardMatches.length > 0) {
+      for (const match of standardMatches) {
+        const imageUrl = match[0];
+
+        // Replace the URL in the question text
+        processedText = processedText.replace(imageUrl, "");
+
+        // Create image HTML
+        imageHtmlContent += `<div class="question-image-container">
+          <img src="${imageUrl}" alt="Question ${questionNumber} image" class="question-image">
+        </div>`;
+      }
+    }
   }
 
-  return { processedText, imageHtmlContent }
+  return { processedText, imageHtmlContent };
 }
 
-// Enhanced image error handling
+// Function to handle image loading errors
 function setupImageErrorHandling() {
   document.querySelectorAll(".question-image").forEach((img) => {
-    img.addEventListener("load", function () {
-      this.classList.add("loaded")
-    })
+    img.onerror = function () {
+      this.onerror = null;
 
-    img.addEventListener("error", function () {
-      const container = this.closest(".question-image-container")
+      // Custom message for Google Drive images
       const errorMessage =
         this.dataset.source === "google-drive"
-          ? "Google Drive image could not be loaded. Please ensure the file is publicly accessible."
-          : "Image could not be loaded. Please check the URL."
+          ? "Google Drive image could not be loaded. Make sure the file is publicly accessible."
+          : "Image could not be loaded";
 
-      container.innerHTML = `
+      this.parentNode.innerHTML = `
         <div class="image-error">
-          <div class="error-icon">🖼️</div>
-          <h4>Image Loading Error</h4>
           <p>${errorMessage}</p>
-          <details>
-            <summary>Technical Details</summary>
-            <small>${this.src}</small>
-          </details>
+          <small>${this.src}</small>
         </div>
-      `
-    })
-  })
+      `;
+    };
+  });
 }
 
-// Enhanced answer checking with better validation
+// Check answers and calculate score
+// Function to check answers with validation for unanswered questions
+// Replace both checkAnswers functions with this updated version
 function checkAnswers() {
-  const submitBtn = document.querySelector(".submit-btn")
-  const submitLoader = submitBtn.querySelector(".submit-loader")
-  const submitIcon = submitBtn.querySelector(".submit-icon")
+  // Get the submit button
+  const submitBtn = document.querySelector(".submit-btn");
 
-  // Show loading state
-  submitIcon.style.display = "none"
-  submitLoader.style.display = "flex"
-  submitBtn.disabled = true
+  // Display loading state
+  submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+  submitBtn.disabled = true;
 
-  // Clear timer
+  // Clear the timer interval if it exists
   if (timerInterval) {
-    clearInterval(timerInterval)
+    clearInterval(timerInterval);
   }
 
-  // Validate student information
-  const surname = document.getElementById("surname")?.value.trim()
-  const firstname = document.getElementById("firstname")?.value.trim()
-
+  let surname = document.getElementById("surname").value.trim();
+  let firstname = document.getElementById("firstname").value.trim();
   if (!surname || !firstname) {
-    showNotification("Please enter both your surname and first name before submitting.", "error")
-    resetSubmitButton(submitBtn, submitIcon, submitLoader)
-    startTimer()
-    return
+    alert("Please enter both your surname and first name before submitting.");
+    // Reset the submit button
+    submitBtn.innerHTML = "Submit Exam";
+    submitBtn.disabled = false;
+    // Restart the timer since the exam wasn't submitted
+    startTimer();
+    return;
   }
 
-  // Enhanced unanswered question detection
-  const unansweredQuestions = findUnansweredQuestions()
+  // Check for unanswered questions with higher accuracy
+  let unansweredQuestions = [];
 
+  // Loop through each question by index
+  for (let i = 0; i < questionsData.length; i++) {
+    const questionNum = i + 1; // Convert 0-based index to 1-based question number
+    const radioButtons = document.querySelectorAll(
+      `input[name="q${questionNum}"]`
+    );
+    let answered = false;
+
+    // Check if any radio button is checked for this question
+    radioButtons.forEach((radio) => {
+      if (radio.checked) {
+        answered = true;
+      }
+    });
+
+    if (!answered) {
+      unansweredQuestions.push(questionNum);
+    }
+  }
+
+  // If there are unanswered questions, show alert and highlight all of them
   if (unansweredQuestions.length > 0) {
-    handleUnansweredQuestions(unansweredQuestions, submitBtn, submitIcon, submitLoader)
-    return
-  }
+    // Reset the submit button
+    submitBtn.innerHTML = "Submit Exam";
+    submitBtn.disabled = false;
 
-  // Calculate results
-  const results = calculateResults(surname, firstname)
+    // First, clear any previous "unanswered" markings
+    document.querySelectorAll(".question-container").forEach((container) => {
+      container.classList.remove("unanswered");
+    });
 
-  // Save results
-  saveResult(results)
-}
+    // Now mark all unanswered questions - use a more direct and reliable approach
+    for (let i = 0; i < unansweredQuestions.length; i++) {
+      const qNum = unansweredQuestions[i];
 
-// Enhanced unanswered question detection
-function findUnansweredQuestions() {
-  const unanswered = []
+      // Get all question containers directly
+      const questionContainers = document.querySelectorAll(
+        ".question-container"
+      );
 
-  questionsData.forEach((_, index) => {
-    const questionNum = index + 1
-    const radioButtons = document.querySelectorAll(`input[name="q${questionNum}"]`)
-    const isAnswered = Array.from(radioButtons).some((radio) => radio.checked)
+      // Find the container for this question number
+      // We need special handling here because the text might be formatted differently
+      for (let j = 0; j < questionContainers.length; j++) {
+        const container = questionContainers[j];
+        const questionText = container.querySelector(".question-text");
 
-    if (!isAnswered) {
-      unanswered.push(questionNum)
+        if (questionText) {
+          // This will match both "Question 1:" and "Question 10:" formats
+          const match = questionText.textContent.match(/Question\s+(\d+):/i);
+          if (match && parseInt(match[1]) === qNum) {
+            container.classList.add("unanswered");
+            break;
+          }
+        }
+      }
     }
-  })
 
-  return unanswered
-}
+    // Create message listing unanswered questions
+    let message = `Please answer the following questions before submitting:\n• Question ${unansweredQuestions.join(
+      "\n• Question "
+    )}`;
+    alert(message);
 
-// Enhanced handling of unanswered questions
-function handleUnansweredQuestions(unansweredQuestions, submitBtn, submitIcon, submitLoader) {
-  resetSubmitButton(submitBtn, submitIcon, submitLoader)
-
-  // Clear previous markings
-  document.querySelectorAll(".question-container").forEach((container) => {
-    container.classList.remove("unanswered")
-  })
-
-  // Mark unanswered questions
-  unansweredQuestions.forEach((qNum) => {
-    const container = document.querySelector(`[data-question="${qNum}"]`)
-    if (container) {
-      container.classList.add("unanswered")
+    // Scroll to the first unanswered question
+    const firstUnanswered = document.querySelector(`.unanswered`);
+    if (firstUnanswered) {
+      firstUnanswered.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
-  })
 
-  // Show detailed notification
-  const message = `Please answer the following questions before submitting:\n${unansweredQuestions.map((q) => `• Question ${q}`).join("\n")}`
-  showNotification(message, "warning", 6000)
+    // Restart the timer since the exam wasn't submitted
+    startTimer();
 
-  // Scroll to first unanswered question
-  const firstUnanswered = document.querySelector(".question-container.unanswered")
-  if (firstUnanswered) {
-    firstUnanswered.scrollIntoView({ behavior: "smooth", block: "center" })
+    return;
   }
-
-  startTimer()
-}
-
-// Calculate results with enhanced analytics
-function calculateResults(surname, firstname) {
-  let score = 0
-  const responses = []
-  const totalQuestions = questionsData.length
-  const examEndTime = new Date()
-  const timeSpent = examEndTime - examStartTime
+  const username = `${surname} ${firstname}`;
+  // Proceed with calculating score and submitting
+  let score = 0;
+  let responses = [];
+  let totalQuestions = questionsData.length;
 
   questionsData.forEach((q, index) => {
-    const selected = document.querySelector(`input[name="q${index + 1}"]:checked`)
-    const isCorrect = selected && selected.value === q.correctAnswer
-
-    if (isCorrect) score++
+    let selected = document.querySelector(
+      `input[name="q${index + 1}"]:checked`
+    );
+    let isCorrect = selected && selected.value === q.correctAnswer;
+    if (isCorrect) score++;
 
     responses.push({
       questionNumber: index + 1,
-      selectedAnswer: selected?.value || "No Answer",
-      correctAnswer: q.correctAnswer,
-      isCorrect,
-      subject: q.subject,
-      class: q.cls,
-    })
-  })
+      selectedAnswer: selected.value,
+      correct: isCorrect,
+    });
+  });
 
-  return {
+  // Prepare result data
+  const resultData = {
     timestamp: new Date().toISOString(),
-    name: `${surname} ${firstname}`,
-    surname: surname,
+    name: username, // This ensures compatibility with existing sheet
+    surname: surname, // Add new fields for more detailed tracking
     firstname: firstname,
-    subject: localStorage.getItem("malpracticeExamSubject") || questionsData[0]?.subject,
-    class: localStorage.getItem("malpracticeExamClass") || questionsData[0]?.cls,
-    examType: "Malpractice Re-examination",
+    subject:
+      localStorage.getItem("examSubject") ||
+      document.getElementById("subject").value,
+    class:
+      localStorage.getItem("examClass") ||
+      document.getElementById("class").value,
     score: score,
     totalQuestions: totalQuestions,
     percentage: ((score / totalQuestions) * 100).toFixed(1),
-    timeSpent: Math.round(timeSpent / 1000 / 60), // in minutes
     responses: JSON.stringify(responses),
-    passed: score >= Math.ceil(totalQuestions * 0.5), // 50% pass mark
-  }
-}
+  };
 
-// Reset submit button to original state
-function resetSubmitButton(submitBtn, submitIcon, submitLoader) {
-  submitIcon.style.display = "inline"
-  submitLoader.style.display = "none"
-  submitBtn.disabled = false
+  // Save to appropriate sheet
+  saveResult(resultData);
 }
-
-// Enhanced result saving with better error handling
+// Save result to Google Sheets
 async function saveResult(resultData) {
   try {
-    showNotification("Saving your results...", "info", 2000)
-
     await fetch(sheetURL, {
       method: "POST",
       mode: "no-cors",
@@ -506,321 +436,184 @@ async function saveResult(resultData) {
       },
       body: JSON.stringify({
         ...resultData,
-        sheetName: `Malpractice_Results_${resultData.class}`,
+        sheetName: getSheetName(resultData.subject, resultData.class),
       }),
-    })
+    });
 
-    // Add delay to ensure data is saved
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    // Add a small delay to ensure data is saved
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    displayResults(resultData)
-    showNotification("Results saved successfully!", "success")
+    displayResults(resultData);
   } catch (error) {
-    console.error("Error saving result:", error)
-    showNotification("Results saved locally. Please inform your teacher.", "warning")
-    displayResults(resultData)
+    console.error("Error saving result:", error);
+    alert(
+      "There was an issue displaying the results, but your answers have been recorded successfully."
+    );
   }
 }
 
-// Enhanced results display
+// Display final results
 function displayResults(resultData) {
-  const questionsDiv = document.getElementById("questions")
-  const passStatus = resultData.passed ? "passed" : "needs-improvement"
-  const passIcon = resultData.passed ? "🎉" : "📚"
-  const passMessage = resultData.passed
-    ? "Congratulations! You have successfully completed your re-examination."
-    : "Keep studying! You can improve with more practice."
-
+  const questionsDiv = document.getElementById("questions");
   questionsDiv.innerHTML = `
-    <div class="results-container ${passStatus}">
-      <div class="results-header">
-        <div class="results-icon">${passIcon}</div>
-        <h2 class="results-title">Re-examination Complete!</h2>
-        <div class="student-name">${resultData.name}</div>
-      </div>
-      
+    <div class="results-container">
+      <h2><strong>${resultData.name}</strong>, Well done on your exam!</h2>
       <div class="results-summary">
-        <div class="result-card">
-          <div class="result-label">Your Score</div>
-          <div class="result-value">${resultData.score}/${resultData.totalQuestions}</div>
-          <div class="result-percentage">${resultData.percentage}%</div>
-        </div>
-        
-        <div class="result-card">
-          <div class="result-label">Time Spent</div>
-          <div class="result-value">${resultData.timeSpent}</div>
-          <div class="result-unit">minutes</div>
-        </div>
-        
-        <div class="result-card">
-          <div class="result-label">Status</div>
-          <div class="result-value ${passStatus}">
-            ${resultData.passed ? "Passed" : "Needs Review"}
-          </div>
-        </div>
+      <p>Keep going, you’re doing great! Just take it one step at a time.</p>
+       
       </div>
-      
-      <div class="results-message">
-        <p>${passMessage}</p>
-        <p class="encouragement">
-          ${
-            resultData.passed
-              ? "Well done on completing your re-examination successfully!"
-              : "Don't give up! Every mistake is a learning opportunity."
-          }
-        </p>
-      </div>
-      
-      <div class="results-actions">
-        <button onclick="window.location.href='index.html'" class="action-btn primary">
-          <span class="btn-icon">🔄</span>
-          Take Another Re-exam
-        </button>
-        <button onclick="window.print()" class="action-btn secondary">
-          <span class="btn-icon">🖨️</span>
-          Print Results
-        </button>
-      </div>
+      <button onclick="window.location.href='index.html'" class="submit-btn">Take Another Exam</button>
     </div>
-  `
+  `;
 
-  // Clear stored exam details
-  localStorage.removeItem("malpracticeExamDay")
-  localStorage.removeItem("malpracticeExamClass")
-  localStorage.removeItem("malpracticeExamSubject")
+  // Clear the stored exam details
+  localStorage.removeItem("examDay");
+  localStorage.removeItem("examClass");
+  localStorage.removeItem("examSubject");
 }
 
-// Enhanced radio button change listeners
-function addRadioChangeListeners() {
-  document.querySelectorAll('input[type="radio"]').forEach((radio) => {
-    radio.addEventListener("change", (e) => {
-      const questionContainer = e.target.closest(".question-container")
-      if (questionContainer) {
-        questionContainer.classList.remove("unanswered")
-        questionContainer.classList.add("answered")
+// Initialize if on questions page
+if (window.location.pathname.includes("questions.html")) {
+  window.addEventListener("load", () => {
+    const day = localStorage.getItem("examDay");
+    const cls = localStorage.getItem("examClass");
+    const subject = localStorage.getItem("examSubject");
 
-        // Update progress
-        updateProgress()
-      }
-    })
-  })
+    if (!day || !cls || !subject) {
+      alert("Please select exam details first");
+      window.location.href = "index.html";
+      return;
+    }
+
+    // Display exam info
+    document.getElementById("exam-info").innerHTML = `
+      <h2>Exam Details</h2>
+      <p>Day: ${day}</p>
+      <p>Class: Primary ${cls.substring(1)}</p>
+      <p>Subject: ${subject.replace(/_/g, " ")}</p>
+      
+    `;
+
+    // Auto fetch questions
+    fetchQuestions(day, cls, subject);
+  });
 }
 
-// Question tracking for better UX
-function setupQuestionTracking() {
-  const questions = document.querySelectorAll(".question-container")
-
-  // Add intersection observer for scroll tracking
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("in-view")
-        }
-      })
-    },
-    { threshold: 0.5 },
-  )
-
-  questions.forEach((question) => {
-    observer.observe(question)
-  })
-}
-
-// Update progress based on answered questions
-function updateProgress() {
-  const totalQuestions = questionsData.length
-  const answeredQuestions = document.querySelectorAll(".question-container.answered").length
-  const progressPercent = (answeredQuestions / totalQuestions) * 100
-
-  const progressFill = document.querySelector(".progress-bar-fill")
-  if (progressFill) {
-    progressFill.style.width = `${progressPercent}%`
-  }
-}
-
-// Enhanced timer functionality for malpractice exam (45 minutes)
-const examDuration = 45 * 60 // 45 minutes in seconds
-let timerInterval
+// Timer functionality
+let examDuration = 30 * 60; // 30 minutes in seconds
+let timerInterval;
 
 function startTimer() {
-  const timerElement = document.getElementById("time-remaining")
-  let timeLeft = examDuration
+  const timerElement = document.getElementById("time-remaining");
+  let timeLeft = examDuration;
 
-  updateTimerDisplay(timeLeft)
+  // Update timer immediately
+  updateTimerDisplay(timeLeft);
 
   timerInterval = setInterval(() => {
-    timeLeft--
-    updateTimerDisplay(timeLeft)
+    timeLeft--;
 
-    // Warning notifications
-    if (timeLeft === 900) {
-      // 15 minutes remaining
-      showTimerWarning("15 minutes remaining!", "warning")
+    // Update the timer display
+    updateTimerDisplay(timeLeft);
+
+    // Update progress bar
+    const progressPercent = 100 - (timeLeft / examDuration) * 100;
+    document.querySelector(
+      ".progress-bar-fill"
+    ).style.width = `${progressPercent}%`;
+
+    // When time runs out
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Time's up! Your exam will be submitted now.");
+      checkAnswers();
+      window.location.href = "index.html"; // Redirect to a specific link
+    }
+
+    // Warning when 5 minutes remaining
+    if (timeLeft === 600) {
+      showTimerWarning("10 Minutes Remaining!");
     }
     if (timeLeft === 300) {
-      // 5 minutes remaining
-      showTimerWarning("5 minutes remaining! Please review your answers.", "error")
+      showTimerWarning("5 minutes remaining!");
     }
-    if (timeLeft === 60) {
-      // 1 minute remaining
-      showTimerWarning("1 minute remaining! Prepare to submit.", "error")
-    }
-
-    // Auto-submit when time runs out
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval)
-      showNotification("Time's up! Your re-examination will be submitted automatically.", "error")
-      setTimeout(() => {
-        checkAnswers()
-      }, 2000)
-    }
-  }, 1000)
+  }, 1000);
 }
 
 function updateTimerDisplay(seconds) {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  const timerElement = document.getElementById("time-remaining")
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  document.getElementById("time-remaining").textContent = `${minutes
+    .toString()
+    .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
 
-  if (timerElement) {
-    timerElement.textContent = `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
-
-    // Change styling based on time remaining
-    if (seconds < 300) {
-      // Less than 5 minutes
-      timerElement.classList.add("warning")
-      document.querySelector(".timer-widget").classList.add("urgent")
-    } else if (seconds < 900) {
-      // Less than 15 minutes
-      timerElement.classList.add("caution")
-    }
+  // Change color when less than 10 minutes remaining
+  if (seconds < 600) {
+    document.getElementById("time-remaining").style.color = "orange";
+  }
+  // Change color when less than 5 minutes remaining
+  if (seconds < 300) {
+    document.getElementById("time-remaining").style.color = "#ef4444";
   }
 }
 
-function showTimerWarning(message, type) {
-  showNotification(message, type, 5000)
+function showTimerWarning() {
+  // Create a warning toast
+  const toast = document.createElement("div");
+  toast.className = "toast toast-warning";
+  toast.innerHTML = "Time is Ticking!!!";
+  document.body.appendChild(toast);
 
-  // Add visual emphasis to timer
-  const timerWidget = document.querySelector(".timer-widget")
-  if (timerWidget) {
-    timerWidget.classList.add("pulse")
-    setTimeout(() => {
-      timerWidget.classList.remove("pulse")
-    }, 1000)
+  // Remove toast after 5 seconds
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+
+// Modify your existing fetchQuestions function to start the timer after questions load
+async function fetchQuestions(day, cls, subject) {
+  if (!subject) {
+    alert("Please select a subject.");
+    return;
+  }
+
+  let sheetName = getSheetName(subject, cls);
+  let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+
+  try {
+    let response = await fetch(url);
+    let data = await response.json();
+
+    if (!data.values) {
+      throw new Error(`No sheet found for ${sheetName}`);
+    }
+
+    displayQuestions(data.values, subject, cls);
+
+    // Start the timer after questions are displayed
+    startTimer();
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    document.getElementById("questions").innerHTML = `
+      <p class="error"> ${subject.replace(
+        /_/g,
+        " "
+      )} - ${cls} is not yet available.</p>
+      <p class="error">Please make sure you've selected the right Class, Subject and Day.</p>
+      <button onclick="window.location.href='index.html'" class="sub-btn">Go Back</button>
+    `;
   }
 }
 
-// Image expansion functionality
-function expandImage(button) {
-  const img = button.closest(".question-image-container").querySelector(".question-image")
-  const modal = document.createElement("div")
-  modal.className = "image-modal"
-  modal.innerHTML = `
-    <div class="image-modal-content">
-      <button class="image-modal-close" onclick="this.closest('.image-modal').remove()">×</button>
-      <img src="${img.src}" alt="${img.alt}" class="expanded-image">
-    </div>
-  `
-
-  document.body.appendChild(modal)
-
-  // Close on background click
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.remove()
-    }
-  })
+// Add this to clear timer when exam is submitted
+function addRadioChangeListeners() {
+  document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      // Find the question container
+      const questionContainer = e.target.closest(".question-container");
+      if (questionContainer) {
+        questionContainer.classList.remove("unanswered");
+      }
+    });
+  });
 }
-
-// Initialize exam when on questions page
-if (window.location.pathname.includes("questions.html")) {
-  window.addEventListener("load", () => {
-    const day = localStorage.getItem("malpracticeExamDay")
-    const cls = localStorage.getItem("malpracticeExamClass")
-    const subject = localStorage.getItem("malpracticeExamSubject")
-
-    if (!day || !cls || !subject) {
-      showNotification("Please select exam details first", "error")
-      setTimeout(() => {
-        window.location.href = "index.html"
-      }, 2000)
-      return
-    }
-
-    // Auto fetch questions and start timer
-    fetchQuestions(day, cls, subject).then(() => {
-      startTimer()
-    })
-  })
-}
-
-// Enhanced keyboard shortcuts
-document.addEventListener("keydown", (e) => {
-  // Ctrl/Cmd + Enter to submit
-  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-    const submitBtn = document.querySelector(".submit-btn")
-    if (submitBtn && !submitBtn.disabled) {
-      checkAnswers()
-    }
-  }
-
-  // Escape to close modals
-  if (e.key === "Escape") {
-    const modal = document.querySelector(".image-modal")
-    if (modal) {
-      modal.remove()
-    }
-  }
-})
-
-// Prevent accidental page refresh during exam
-window.addEventListener("beforeunload", (e) => {
-  if (document.querySelector(".question-container")) {
-    e.preventDefault()
-    e.returnValue = "Are you sure you want to leave? Your progress will be lost."
-  }
-})
-
-// Auto-save functionality (optional enhancement)
-function autoSaveProgress() {
-  const answers = {}
-  questionsData.forEach((_, index) => {
-    const selected = document.querySelector(`input[name="q${index + 1}"]:checked`)
-    if (selected) {
-      answers[`q${index + 1}`] = selected.value
-    }
-  })
-
-  localStorage.setItem(
-    "malpracticeAutoSave",
-    JSON.stringify({
-      answers,
-      timestamp: new Date().toISOString(),
-    }),
-  )
-}
-
-// Restore auto-saved progress
-function restoreProgress() {
-  const saved = localStorage.getItem("malpracticeAutoSave")
-  if (saved) {
-    try {
-      const { answers } = JSON.parse(saved)
-      Object.entries(answers).forEach(([questionName, value]) => {
-        const radio = document.querySelector(`input[name="${questionName}"][value="${value}"]`)
-        if (radio) {
-          radio.checked = true
-          radio.closest(".question-container").classList.add("answered")
-        }
-      })
-      updateProgress()
-      showNotification("Previous answers restored", "info", 2000)
-    } catch (error) {
-      console.error("Error restoring progress:", error)
-    }
-  }
-}
-
-// Set up auto-save every 30 seconds
-setInterval(autoSaveProgress, 30000)
