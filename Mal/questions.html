@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Malpractice Re-examination</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="../St-Louis-Exam-Cbt-main/Bida2.png" />
+  </head>
+  <body class="exam-body">
+    <div class="background-animation"></div>
+    
+    <div class="powered-by-bina">
+      <span>Powered by</span>
+      <img src="../St-Louis-Exam-Cbt-main/Bina Pry.png" alt="BINA Logo" />
+    </div>
+
+    <div class="timer-widget">
+      <div class="timer-icon">⏱️</div>
+      <div class="timer-content">
+        <div class="timer-label">Time Remaining</div>
+        <div id="time-remaining" class="timer-display">00:00</div>
+      </div>
+    </div>
+
+    <div class="container exam-container">
+      <div id="exam-info" class="exam-header-card"></div>
+
+      <div class="progress-section">
+        <div class="progress-label">Exam Progress</div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+          <div class="progress-glow"></div>
+        </div>
+      </div>
+
+      <div id="questions" class="questions-section">
+        <div class="loading-container">
+          <div class="loading-spinner-large"></div>
+          <p>Loading your re-examination questions...</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      // Auto-load questions when page loads
+      window.addEventListener("load", () => {
+        // Get stored exam details
+        const day = localStorage.getItem("malpracticeExamDay");
+        const cls = localStorage.getItem("malpracticeExamClass");
+        const subject = localStorage.getItem("malpracticeExamSubject");
+
+        if (!day || !cls || !subject) {
+          showNotification("Please select exam details first", "error");
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 2000);
+          return;
+        }
+
+        // Display exam info
+        document.getElementById("exam-info").innerHTML = `
+          <div class="exam-info-content">
+            <div class="exam-badge">Re-examination</div>
+            <h1 class="exam-title">Malpractice Re-examination</h1>
+            <div class="exam-details">
+              <div class="detail-item">
+                <span class="detail-icon">🎓</span>
+                <span class="detail-label">Class:</span>
+                <span class="detail-value">Primary ${cls.substring(1)}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📚</span>
+                <span class="detail-label">Subject:</span>
+                <span class="detail-value">${subject.replace(/_/g, " ")}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📅</span>
+                <span class="detail-label">Day:</span>
+                <span class="detail-value">${day}</span>
+              </div>
+            </div>
+            <div class="warning-notice">
+              <div class="warning-icon">⚠️</div>
+              <div class="warning-text">
+                <strong>Important:</strong> If this information is incorrect, 
+                <a href="index.html" class="back-link">go back</a> and select again.
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Auto fetch questions
+        fetchQuestions(day, cls, subject);
+      });
+
+      function showNotification(message, type) {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+          <div class="notification-icon">${type === 'error' ? '❌' : '✅'}</div>
+          <div class="notification-message">${message}</div>
+        `;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 100);
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

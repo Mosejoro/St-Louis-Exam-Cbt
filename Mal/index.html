@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Malpractice Re-examination System</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="background-animation"></div>
+    
+    <div class="powered-by-bina">
+      <span>Powered by</span>
+      <img src="../St-Louis-Exam-Cbt-main/Bina Pry.png" alt="BINA Logo" />
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="../St-Louis-Exam-Cbt-main/Bida2.png" alt="School Logo" />
+          <div class="logo-glow"></div>
+        </div>
+        
+        <h1 class="main-title">
+          <span class="gradient-text">St Louis School</span>
+          <span class="subtitle">Malpractice Re-examination Portal</span>
+        </h1>
+        
+        <div class="instruction-card">
+          <div class="warning-icon">⚠️</div>
+          <h3>Re-examination Instructions</h3>
+          <p>This is a second chance examination for students who committed malpractice.</p>
+          <p>Please select your exam details carefully and follow all instructions.</p>
+        </div>
+      </div>
+
+      <div class="selection-form">
+        <div class="form-card">
+          <div class="form-header">
+            <h2>Select Your Exam Details</h2>
+            <div class="form-divider"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="day" class="form-label">
+              <span class="label-icon">📅</span>
+              Select Day:
+            </label>
+            <div class="select-wrapper">
+              <select id="day" class="form-control">
+                <option value="Day1">Monday</option>
+                <option value="Day2">Tuesday</option>
+                <option value="Day3">Wednesday</option>
+                <option value="Day4">Thursday</option>
+                <option value="Day5">Friday</option>
+              </select>
+              <div class="select-arrow">▼</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="class" class="form-label">
+              <span class="label-icon">🎓</span>
+              Select Class:
+            </label>
+            <div class="select-wrapper">
+              <select id="class" class="form-control">
+                <option value="P1">Primary 1</option>
+                <option value="P2">Primary 2</option>
+                <option value="P3">Primary 3</option>
+                <option value="P4">Primary 4</option>
+                <option value="P5">Primary 5</option>
+                <option value="P6">Primary 6</option>
+              </select>
+              <div class="select-arrow">▼</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="subject" class="form-label">
+              <span class="label-icon">📚</span>
+              Select Subject:
+            </label>
+            <div class="select-wrapper">
+              <select id="subject" class="form-control">
+                <!-- Options will be populated by JavaScript -->
+              </select>
+              <div class="select-arrow">▼</div>
+            </div>
+          </div>
+
+          <button onclick="startExam()" class="start-btn">
+            <span class="btn-icon">🚀</span>
+            Start Re-examination
+            <div class="btn-ripple"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Timetable for malpractice re-examinations
+      const timetable = {
+        Day1: {
+          P1: ["Mathematics", "English"],
+          P2: ["Mathematics", "English"],
+          P3: ["Mathematics", "English"],
+          P4: ["Mathematics", "English"],
+          P5: ["Mathematics", "English"],
+          P6: ["Mathematics", "English"],
+        },
+        Day2: {
+          P1: ["Basic_Science", "CCA"],
+          P2: ["Basic_Science", "CCA"],
+          P3: ["Basic_Science", "CCA"],
+          P4: ["Basic_Science", "CCA"],
+          P5: ["Basic_Science", "CCA"],
+          P6: ["Basic_Science", "CCA"],
+        },
+        Day3: {
+          P1: ["National_Value", "CRK"],
+          P2: ["National_Value", "CRK"],
+          P3: ["National_Value", "CRK"],
+          P4: ["National_Value", "CRK"],
+          P5: ["National_Value", "CRK"],
+          P6: ["National_Value", "CRK"],
+        },
+        Day4: {
+          P1: ["Prevocational_Studies", "French"],
+          P2: ["Prevocational_Studies", "French"],
+          P3: ["Prevocational_Studies", "French"],
+          P4: ["Prevocational_Studies", "French"],
+          P5: ["Prevocational_Studies", "French"],
+          P6: ["Prevocational_Studies", "French"],
+        },
+        Day5: {
+          P1: ["English", "Mathematics"],
+          P2: ["English", "Mathematics"],
+          P3: ["English", "Mathematics"],
+          P4: ["English", "Mathematics"],
+          P5: ["English", "Mathematics"],
+          P6: ["English", "Mathematics"],
+        },
+      };
+
+      document.getElementById("day").addEventListener("change", updateSubjects);
+      document.getElementById("class").addEventListener("change", updateSubjects);
+
+      function updateSubjects() {
+        let day = document.getElementById("day").value;
+        let cls = document.getElementById("class").value;
+        let subjectsDropdown = document.getElementById("subject");
+
+        subjectsDropdown.innerHTML = "";
+
+        if (timetable[day] && timetable[day][cls]) {
+          timetable[day][cls].forEach((subject) => {
+            let option = document.createElement("option");
+            option.value = subject;
+            option.textContent = subject.replace(/_/g, " ");
+            subjectsDropdown.appendChild(option);
+          });
+        }
+      }
+
+      function startExam() {
+        const day = document.getElementById("day").value;
+        const cls = document.getElementById("class").value;
+        const subject = document.getElementById("subject").value;
+
+        if (!subject) {
+          showNotification("Please select a subject.", "error");
+          return;
+        }
+
+        // Store selections in localStorage
+        localStorage.setItem("malpracticeExamDay", day);
+        localStorage.setItem("malpracticeExamClass", cls);
+        localStorage.setItem("malpracticeExamSubject", subject);
+
+        // Show loading animation
+        const btn = document.querySelector(".start-btn");
+        btn.innerHTML = '<div class="loading-spinner"></div>Loading...';
+        btn.disabled = true;
+
+        // Redirect to questions page after a short delay
+        setTimeout(() => {
+          window.location.href = "questions.html";
+        }, 1500);
+      }
+
+      function showNotification(message, type) {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 100);
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      // Initialize subjects dropdown
+      updateSubjects();
+
+      // Add ripple effect to button
+      document.querySelector(".start-btn").addEventListener("click", function(e) {
+        const ripple = this.querySelector(".btn-ripple");
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + "px";
+        ripple.style.left = x + "px";
+        ripple.style.top = y + "px";
+        ripple.classList.add("animate");
+        
+        setTimeout(() => ripple.classList.remove("animate"), 600);
+      });
+    </script>
+  </body>
+</html>
