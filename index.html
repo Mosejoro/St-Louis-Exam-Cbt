@@ -29,20 +29,20 @@
         <div class="form-group">
           <label for="day">Select Day:</label>
           <select id="day" class="form-control">
-            <!-- <option value="Day1">Monday</option>  -->
-             <!-- <option value="Day2">Tuesday</option>  -->
-            <!-- <option value="Day3">Wednesday</option> -->
+            <option value="Day1">Monday</option> 
+             <option value="Day2">Tuesday</option> 
+            <option value="Day3">Wednesday</option>
             <option value="Day4">Thursday</option> 
-           <!-- <option value="Day5">Friday</option>  -->
+           <option value="Day5">Friday</option>
           </select>
         </div>
 
         <div class="form-group">
           <label for="class">Select Class:</label>
           <select id="class" class="form-control">
-            <!-- <option value="P1">Primary 1</option>
+            <option value="P1">Primary 1</option>
             <option value="P2">Primary 2</option>
-            <option value="P3">Primary 3</option>  -->
+            <option value="P3">Primary 3</option> 
             <option value="P4">Primary 4</option>
             <option value="P5">Primary 5</option>
             <option value="P6">Primary 6</option>
@@ -67,26 +67,26 @@
       const timetable = {
         Day1: {
           P1: ["Mathematics"],
-          P2: ["Mathematics"],
-          P3: ["Mathematics"],
-          P4: ["Mathematics"],
-          P5: ["Mathematics"],
-          P6: ["Mathematics"],
+          P2: ["History"],
+          P3: ["English"],
+          P4: ["Social_Studies"],
+          P5: ["CCA"],
+          P6: ["CRK"],
          
         },
         Day2: {
-          P1: ["Basic_Science", ],
-          P2: ["Basic_Science" ],
-          P3: ["Basic_Science", ],
-          P4: ["National_Value",],
-          P5: ["National_Value",],
-          P6: ["National_Value",],
+          P1: ["PHE", ],
+          P2: ["Hausa" ],
+          P3: ["Prevocational_Studies", ],
+          P4: ["Digital",],
+          P5: ["History",],
+          P6: ["History",],
 
         },
         Day3: {
-          P1: ["National_Value",],
-          P2: ["National_Value",],
-          P3: ["National_Value",],
+          P1: ["History",],
+          P2: ["History",],
+          P3: ["History",],
           P4: ["English" ,"CRK"],
           P5: ["English" ,"CRK"],
           P6: ["English" ,"CRK"],
@@ -95,7 +95,7 @@
           P1: ["Prevocational_Studies",],
           P2: ["Prevocational_Studies",],
           P3: ["Prevocational_Studies",],
-          P4: ["Basic_Science","Mathematics","National_Value"],
+          P4: ["Basic_Science","Mathematics","History"],
           P5: ["Basic_Science"],
           P6: ["Basic_Science"],
         
@@ -108,14 +108,6 @@
           P5: ["Prevocational_Studies",],
           P6: ["Prevocational_Studies",],
         },
-        // Day6: {
-        //   P1: ["CRK", "Prevocational_Studies"],
-        //   P2: ["Mathematics", "National_Value"],
-        //   P3: ["English", "Mathematics"],
-        //   P4: ["Basic_Science", "CCA"],
-        //   P5: ["National_Value", "English"],
-        //   P6: ["Mathematics", "CCA"],
-        // },
       };
 
       document.getElementById("day").addEventListener("change", updateSubjects);
