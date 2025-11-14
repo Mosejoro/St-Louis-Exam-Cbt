@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Yet Exam Day</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: 'Comic Neue', cursive;
+      color: #333;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 4rem;
+      color: #ff3c3c;
+      text-shadow: 3px 3px #fff, 6px 6px #ffb347;
+      animation: bounce 2s infinite;
+    }
+
+    p {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1rem;
+      color: #333;
+      margin-top: 20px;
+      animation: wiggle 1.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    @keyframes wiggle {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(3deg);
+      }
+      75% {
+        transform: rotate(-3deg);
+      }
+    }
+
+    /* Optional: Floating doodles */
+    .doodle {
+      position: absolute;
+      font-size: 2rem;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .doodle:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+    .doodle:nth-child(2) { top: 70%; left: 80%; animation-delay: 1s; }
+    .doodle:nth-child(3) { top: 40%; left: 50%; animation-delay: 2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="doodle">📚</div>
+  <div class="doodle">✏️</div>
+  <div class="doodle">📝</div>
+
+  <h1>Not Yet Exam Day!</h1>
+  <p>Relax, chill, and enjoy your time 😎</p>
+</body>
+</html>
