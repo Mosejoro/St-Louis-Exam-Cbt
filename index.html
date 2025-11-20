@@ -9,18 +9,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="examv1.css" />
-    <script>
-    // Redirect URL
-    const redirectTo = "Not.html";
-
-    window.location.href = redirectTo;
-  </script>
+    <!-- <script>
+      const redirectTo = "Not.html";
+      window.location.href = redirectTo;
+    </script> -->
   </head>
   <body>
-     <div class="powered-by-bina-floating">
-  <span>Powered by</span>
-  <img src="Bina Pry.png" alt="BINA Logo" />
-</div>
+    <div class="powered-by-bina-floating">
+      <span>Powered by</span>
+      <img src="Bina Pry.png" alt="BINA Logo" />
+    </div>
     <div class="container">
       <div class="header">
         <img src="Bida2.png" /><br />
@@ -35,11 +33,11 @@
         <div class="form-group">
           <label for="day">Select Day:</label>
           <select id="day" class="form-control">
-            <option value="Day1">Monday</option> 
-             <option value="Day2">Tuesday</option> 
+            <option value="Day1">Monday</option>
+            <option value="Day2">Tuesday</option>
             <option value="Day3">Wednesday</option>
-            <option value="Day4">Thursday</option> 
-           <option value="Day5">Friday</option>
+            <option value="Day4">Thursday</option>
+            <option value="Day5">Friday</option>
           </select>
         </div>
 
@@ -48,7 +46,7 @@
           <select id="class" class="form-control">
             <option value="P1">Primary 1</option>
             <option value="P2">Primary 2</option>
-            <option value="P3">Primary 3</option> 
+            <option value="P3">Primary 3</option>
             <option value="P4">Primary 4</option>
             <option value="P5">Primary 5</option>
             <option value="P6">Primary 6</option>
@@ -67,54 +65,70 @@
       <!-- <a class="make-up" href="Make Up.html">Go to make up exam</a> -->
     </div>
 
-
     <script>
-      // Move the existing updateSubjects code here
       const timetable = {
         Day1: {
-          P1: ["Mathematics"],
-          P2: ["History"],
-          P3: ["English"],
-          P4: ["Social_Studies"],
-          P5: ["CCA"],
-          P6: ["CRK"],
-         
+          P1: ["PHE", "CRK"],
+          P2: ["PHE", "CRK"],
+          P3: ["PHE", "CRK"],
+          P4: ["English", "CRK"],
+          P5: ["English", "CRK"],
+          P6: ["English", "CRK"],
         },
         Day2: {
-          P1: ["PHE", ],
-          P2: ["Hausa" ],
-          P3: ["History",],
-          P4: ["Digital",],
-          P5: ["Prevocational_Studies", ],
-          P6: ["Hausa",],
-
+          P1: ["Basic_Science"],
+          P2: ["Basic_Science"],
+          P3: ["Basic_Science"],
+          P4: ["Digital_Literacy", "PHE"],
+          P5: ["Digital_Literacy", "PHE"],
+          P6: ["Digital_Literacy", "PHE"],
         },
         Day3: {
-          P1: ["History",],
-          P2: ["History",],
-          P3: ["History",],
-          P4: ["English" ,"CRK"],
-          P5: ["English" ,"CRK"],
-          P6: ["English" ,"CRK"],
+          P1: ["CCA", "Hausa"],
+          P2: ["CCA", "Hausa"],
+          P3: ["CCA", "Hausa"],
+          P4: ["Basic_Science", "CCA"],
+          P5: ["Basic_Science", "CCA"],
+          P6: ["Basic_Science", "CCA"],
         },
         Day4: {
-          P1: ["Prevocational_Studies",],
-          P2: ["Prevocational_Studies",],
-          P3: ["Prevocational_Studies",],
-          P4: ["Basic_Science","Mathematics","History"],
-          P5: ["Basic_Science"],
-          P6: ["Basic_Science"],
-        
+          P1: ["Social_Studies", "History"],
+          P2: ["Social_Studies", "History"],
+          P3: ["Social_Studies", "History"],
+          P4: ["Social_Studies", "Prevocational_Studies"],
+          P5: ["Social_Studies", "Prevocational_Studies"],
+          P6: ["Social_Studies", "Prevocational_Studies"],
         },
         Day5: {
-           P1: ["English",],
-           P2: ["English",],
-           P3: ["English",],
-          P4: ["Prevocational_Studies",],
-          P5: ["Prevocational_Studies",],
-          P6: ["Prevocational_Studies",],
+          P1: ["Mathematics"],
+          P2: ["Mathematics"],
+          P3: ["Mathematics"],
+          P4: ["Mathematics", "Hausa"],
+          P5: ["Mathematics", "Hausa"],
+          P6: ["Mathematics", "Hausa"],
         },
       };
+
+      function getAndSetCurrentDay() {
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+        // Map JavaScript day numbers to exam days
+        // Sunday (0) and Saturday (6) map to Friday for weekend fallback
+        const dayMap = {
+          0: "Day5", // Sunday -> Friday
+          1: "Day1", // Monday
+          2: "Day2", // Tuesday
+          3: "Day3", // Wednesday
+          4: "Day4", // Thursday
+          5: "Day5", // Friday
+          6: "Day5", // Saturday -> Friday
+        };
+
+        const currentExamDay = dayMap[dayOfWeek];
+        document.getElementById("day").value = currentExamDay;
+        updateSubjects();
+      }
 
       document.getElementById("day").addEventListener("change", updateSubjects);
       document
@@ -157,8 +171,9 @@
         window.location.href = "questions.html";
       }
 
-      // Initialize subjects dropdown
-      updateSubjects();
+      document.addEventListener("DOMContentLoaded", function () {
+        getAndSetCurrentDay();
+      });
     </script>
   </body>
 </html>
