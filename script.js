@@ -443,7 +443,7 @@ function displayResults(resultData, autoSubmit = false) {
   if (notification) notification.remove();
 
   const autoSubmitMessage = autoSubmit
-    ? `<p class="auto-submit-message" style="color: #ff6b6b; font-weight: bold; margin-bottom: 20px;">Your exam was automatically submitted when time ran out.</p>`
+    ? `<p class="auto-submit-message" style="color: green; font-weight: bold;text-align:center; margin-bottom: 20px;">.....</p>`
     : "";
 
   questionsDiv.innerHTML = `
