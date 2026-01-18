@@ -451,7 +451,7 @@ function displayResults(resultData, autoSubmit = false) {
       ${autoSubmitMessage}
       <h2><strong>${resultData.name}</strong>, Well done on your exam!</h2>
       <div class="results-summary">
-        <p>Keep going, you're doing great! Just take it one step at a time.</p>
+        <p>Onto the next!!!</p>
       </div>
       <button onclick="window.location.href='index.html'" class="submit-btn">Take Another Exam</button>
     </div>
