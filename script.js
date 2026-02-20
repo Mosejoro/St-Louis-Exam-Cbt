@@ -488,7 +488,7 @@ if (window.location.pathname.includes("questions.html")) {
 }
 
 // Timer functionality
-const examDuration = 60 * 60; // 30 minutes in seconds
+const examDuration = 20 * 60; // 30 minutes in seconds
 
 function startTimer() {
   const timerElement = document.getElementById("time-remaining");
