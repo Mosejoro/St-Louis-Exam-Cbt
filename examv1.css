@@ -862,6 +862,6 @@ button:hover {
   animation: float 2s ease-in-out infinite;
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
 }
-#day{
+.dd{
   display:none;
 }
