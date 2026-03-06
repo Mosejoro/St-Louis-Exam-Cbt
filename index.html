@@ -9,10 +9,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="examv1.css" />
-    <script>
-      const redirectTo = "Not.html";
-      window.location.href = redirectTo;
-    </script>
   </head>
   <body>
     <div class="powered-by-bina-floating">
@@ -23,10 +19,6 @@
       <div class="header">
         <img src="Bida2.png" /><br />
         <h1>St Louis Bida Exam Portal</h1>
-        <!-- <h3>
-          Pick the Day <br /><br />
-          And then Pick the Subject of that day <br /><br />
-        </h3> -->
       </div>
 
       <div class="selection-form ">
@@ -50,7 +42,6 @@
             <option value="P4">Primary 4</option>
             <option value="P5">Primary 5</option>
             <option value="P6">Primary 6</option>
-             <!-- <option value="Teach">Teacher</option>/ -->
           </select>
         </div>
 
@@ -63,23 +54,22 @@
           Start Exam
         </button>
       </div>
-      <!-- <a class="make-up" href="Make Up.html">Go to make up exam</a> -->
     </div>
 
     <script>
       const timetable = {
         Day1: {
-          P1: ["Mathematics","PHE" ],
-          P2: ["Mathematics","PHE" ],
-          P3: ["Mathematics","PHE" ],
-          P4: ["Mathematics","PHE" ],
-          P5: ["Mathematics","PHE" ],
-          P6: ["Mathematics","PHE" ],
+          P1: ["Mathematics", "PHE"],
+          P2: ["Mathematics", "PHE"],
+          P3: ["Mathematics", "PHE"],
+          P4: ["Mathematics", "PHE"],
+          P5: ["Mathematics", "PHE"],
+          P6: ["Mathematics", "PHE"],
         },
         Day2: {
           P1: ["Basic_Science", "CRK"],
-          P2: ["Basic_Science","CRK"],
-          P3: ["Basic_Science","CRK", "MORAL"],
+          P2: ["Basic_Science", "CRK"],
+          P3: ["Basic_Science", "CRK", "MORAL"],
           P4: ["Basic_Science", "CRK"],
           P5: ["Basic_Science", "CRK"],
           P6: ["Basic_Science", "CRK"],
@@ -99,58 +89,104 @@
           P4: ["Social_Studies", "History", "French"],
           P5: ["Social_Studies", "History", "French"],
           P6: ["Social_Studies", "History", "French"],
-
         },
         Day5: {
-          // P1: ["Mathematics", "Social_Studies"],
-          // P2: ["Mathematics", "Social_Studies"],
-          // P3: ["Mathematics", "Social_Studies"],
           P4: ["Hausa"],
           P5: ["Hausa"],
           P6: ["Hausa"],
-          // P4: ["Digital", "Prevocational_Studies"],
-          // P5: ["Digital", "Prevocational_Studies"],
-          // P6: ["Digital", "Prevocational_Studies"],
-
         },
       };
 
-      function getAndSetCurrentDay() {
-        const today = new Date();
-        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      /**
+       * Fetches the current time from WorldTimeAPI (online source).
+       * Falls back to local time if the request fails.
+       * Returns an object: { hours, minutes, dayOfWeek }
+       * dayOfWeek: 0 = Sunday, 1 = Monday ... 6 = Saturday
+       */
+      async function getOnlineTime() {
+        try {
+          // Using Africa/Lagos timezone (WAT, UTC+1) — adjust if needed
+          const response = await fetch(
+            "https://worldtimeapi.org/api/timezone/Africa/Lagos"
+          );
+          if (!response.ok) throw new Error("Time API response not OK");
+          const data = await response.json();
 
-        // Map JavaScript day numbers to exam days
-        // Sunday (0) and Saturday (6) map to Friday for weekend fallback
+          // datetime format: "2024-11-06T14:35:22.123456+01:00"
+          const datetime = new Date(data.datetime);
+          return {
+            hours: datetime.getHours(),
+            minutes: datetime.getMinutes(),
+            dayOfWeek: datetime.getDay(),
+          };
+        } catch (err) {
+          console.warn("Could not fetch online time, falling back to local time:", err);
+          const now = new Date();
+          return {
+            hours: now.getHours(),
+            minutes: now.getMinutes(),
+            dayOfWeek: now.getDay(),
+          };
+        }
+      }
+
+      /**
+       * Checks whether the current time is within the allowed exam window.
+       * Allowed window: 07:30 AM to 04:00 PM (16:00)
+       * Outside this window → redirect to Not.html
+       */
+      function isWithinExamWindow(hours, minutes) {
+        const totalMinutes = hours * 60 + minutes;
+        const windowStart = 7 * 60 + 30;   // 07:30 → 450 minutes
+        const windowEnd   = 16 * 60;        // 16:00 → 960 minutes
+        return totalMinutes >= windowStart && totalMinutes < windowEnd;
+      }
+
+      /**
+       * Maps day-of-week number to the exam day key.
+       * Weekends fall back to Friday (Day5).
+       */
+      function getExamDay(dayOfWeek) {
         const dayMap = {
-          0: "Day5", // Sunday -> Friday
+          0: "Day5", // Sunday  → Friday
           1: "Day1", // Monday
           2: "Day2", // Tuesday
           3: "Day3", // Wednesday
           4: "Day4", // Thursday
           5: "Day5", // Friday
-          6: "Day5", // Saturday -> Friday
+          6: "Day5", // Saturday → Friday
         };
+        return dayMap[dayOfWeek];
+      }
 
-        const currentExamDay = dayMap[dayOfWeek];
+      async function initPage() {
+        const { hours, minutes, dayOfWeek } = await getOnlineTime();
+
+        // ── Redirect check ──────────────────────────────────────────────
+        if (!isWithinExamWindow(hours, minutes)) {
+          window.location.href = "Not.html";
+          return; // stop further execution
+        }
+
+        // ── Set the current exam day and populate subjects ───────────────
+        const currentExamDay = getExamDay(dayOfWeek);
         document.getElementById("day").value = currentExamDay;
         updateSubjects();
       }
 
       document.getElementById("day").addEventListener("change", updateSubjects);
-      document
-        .getElementById("class")
-        .addEventListener("change", updateSubjects);
+      document.getElementById("class").addEventListener("change", updateSubjects);
 
       function updateSubjects() {
-        let day = document.getElementById("day").value;
-        let cls = document.getElementById("class").value;
-        let subjectsDropdown = document.getElementById("subject");
+        const day = document.getElementById("day").value;
+        const cls = document.getElementById("class").value;
+        const subjectsDropdown = document.getElementById("subject");
 
         subjectsDropdown.innerHTML = "";
 
         if (timetable[day] && timetable[day][cls]) {
           timetable[day][cls].forEach((subject) => {
-            let option = document.createElement("option");
+            const option = document.createElement("option");
             option.value = subject;
             option.textContent = subject.replace(/_/g, " ");
             subjectsDropdown.appendChild(option);
@@ -168,18 +204,15 @@
           return;
         }
 
-        // Store selections in localStorage
         localStorage.setItem("examDay", day);
         localStorage.setItem("examClass", cls);
         localStorage.setItem("examSubject", subject);
 
-        // Redirect to questions page
         window.location.href = "questions.html";
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        getAndSetCurrentDay();
-      });
+      // Kick everything off
+      document.addEventListener("DOMContentLoaded", initPage);
     </script>
   </body>
 </html>
